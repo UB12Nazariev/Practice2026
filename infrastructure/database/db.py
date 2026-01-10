@@ -3,7 +3,7 @@ from psycopg import AsyncConnection
 logger = logging.getLogger(__name__)
 
 
-# Функция добавления ученика
+# Функция добавления сотрудника
 async def add_employee_mail(
         conn: AsyncConnection,
         username: str,
