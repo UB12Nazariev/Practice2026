@@ -1,0 +1,41 @@
+:root {
+    --primary: #4f46e5;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #111827;
+    --border: #e5e7eb;
+}
+
+body { margin: 0; display: flex; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; }
+
+.sidebar { width: 260px; background: #1e1b4b; color: white; padding: 1.5rem; display: flex; flex-direction: column; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 1.4rem; font-weight: 800; margin-bottom: 3rem; }
+.nav-link { 
+    display: flex; align-items: center; gap: 12px; padding: 12px; 
+    border-radius: 8px; cursor: pointer; transition: 0.2s; color: #a5b4fc; margin-bottom: 4px;
+}
+.nav-link:hover, .nav-link.active { background: #312e81; color: white; }
+
+.content { flex: 1; padding: 2rem; overflow-y: auto; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.status-dot { font-size: 0.8rem; background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; }
+
+.glass-card { background: var(--card); padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); max-width: 800px; }
+
+.input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #4b5563; }
+input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+.mt { margin-top: 1.5rem; }
+
+.preview-area { background: #f9fafb; border-radius: 12px; padding: 1.5rem; margin: 2rem 0; display: flex; gap: 3rem; border: 1px dashed #d1d5db; }
+.preview-item small { display: block; color: #6b7280; margin-bottom: 4px; }
+.preview-item span { font-weight: 700; color: var(--primary); font-family: monospace; }
+
+.submit-btn { 
+    width: 100%; background: var(--primary); color: white; border: none; 
+    padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer;
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }

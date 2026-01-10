@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaffFlow | Системный онбординг</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <i data-lucide="layers"></i>
+            <span>StaffFlow</span>
+        </div>
+        <nav class="nav-group">
+            <div class="nav-link active"><i data-lucide="user-plus"></i>Регистрация</div>
+            <div class="nav-link"><i data-lucide="users"></i>База сотрудников</div>
+            <div class="nav-link"><i data-lucide="database"></i>Матрица доступов</div>
+            <div class="nav-link"><i data-lucide="settings"></i>Настройки API</div>
+        </nav>
+    </aside>
+
+    <main>
+        <div class="container">
+            <header>
+                <h1>Создание учетной записи</h1>
+                <p>Автоматическая регистрация в AD, Mail.ru и создание пароля в BitWarden</p>
+            </header>
+
+            <div class="glass-card">
+                <form id="regForm">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Фамилия</label>
+                            <input type="text" id="ln" placeholder="Petrov" required>
+                        </div>
+                        <div class="field">
+                            <label>Имя</label>
+                            <input type="text" id="fn" placeholder="Ivan" required>
+                        </div>
+                        <div class="field">
+                            <label>Отчество</label>
+                            <input type="text" id="mn" placeholder="Olegovich">
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top: 1.5rem;">
+                        <label>Должность сотрудника</label>
+                        <select id="pos" required>
+                            <option value="">Выберите роль из матрицы...</option>
+                        </select>
+                    </div>
+
+                    <div class="preview-card">
+                        <div class="preview-item">
+                            <small>Логин AD</small>
+                            <p id="view-login">-</p>
+                        </div>
+                        <div class="preview-item">
+                            <small>Корпоративный Email</small>
+                            <p id="view-mail">-</p>
+                        </div>
+                    </div>
+
+                    <label class="toggle-row">
+                        <input type="checkbox" id="mailReq">
+                        <span>Развернуть почтовый ящик на Mail.ru</span>
+                    </label>
+
+                    <button type="submit" class="btn-submit">
+                        Создать профиль сотрудника
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
