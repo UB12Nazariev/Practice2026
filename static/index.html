@@ -3,76 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StaffFlow | Системный онбординг</title>
+    <title>StaffFlow | Система онбординга сотрудников</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/script.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
     <aside class="sidebar">
         <div class="brand">
-            <i data-lucide="layers"></i>
+            <i data-lucide="users"></i>
             <span>StaffFlow</span>
+            <div class="status-indicator" title="Система активна"></div>
         </div>
+
         <nav class="nav-group">
-            <div class="nav-link active"><i data-lucide="user-plus"></i>Регистрация</div>
-            <div class="nav-link"><i data-lucide="users"></i>База сотрудников</div>
-            <div class="nav-link"><i data-lucide="database"></i>Матрица доступов</div>
-            <div class="nav-link"><i data-lucide="settings"></i>Настройки API</div>
+            <div class="nav-link active" data-tab="registration">
+                <i data-lucide="user-plus"></i>
+                <span>Регистрация</span>
+            </div>
+            <div class="nav-link" data-tab="database">
+                <i data-lucide="database"></i>
+                <span>База сотрудников</span>
+            </div>
+            <div class="nav-link" data-tab="mail">
+                <i data-lucide="mail"></i>
+                <span>Почтовые ящики</span>
+            </div>
+            <div class="nav-link" data-tab="settings">
+                <i data-lucide="settings"></i>
+                <span>Настройки</span>
+            </div>
         </nav>
+
+        <div class="sidebar-footer">
+            <div class="system-info">
+                <small>Система онбординга</small>
+                <span class="version">v1.0.0</span>
+            </div>
+        </div>
     </aside>
 
-    <main>
-        <div class="container">
-            <header>
-                <h1>Создание учетной записи</h1>
-                <p>Автоматическая регистрация в AD, Mail.ru и создание пароля в BitWarden</p>
-            </header>
+    <main class="content">
+        <!-- Вкладка регистрации -->
+        <div class="tab-content active" id="registration-tab">
+            <div class="page-header">
+                <div>
+                    <h1><i data-lucide="user-plus" class="header-icon"></i>Регистрация нового сотрудника</h1>
+                    <p class="subtitle">Создание учетных записей во всех корпоративных системах</p>
+                </div>
+                <div class="header-actions">
+                    <div class="status-badge">
+                        <i data-lucide="circle" class="status-online"></i>
+                        <span>Системы доступны</span>
+                    </div>
+                </div>
+            </div>
 
-            <div class="glass-card">
-                <form id="regForm">
-                    <div class="form-grid">
-                        <div class="field">
-                            <label>Фамилия</label>
-                            <input type="text" id="ln" placeholder="Petrov" required>
+            <div class="card-grid">
+                <!-- Основная форма -->
+                <div class="card main-form">
+                    <div class="card-header">
+                        <h2><i data-lucide="user"></i>Основные данные</h2>
+                    </div>
+                    <form id="regForm">
+                        <div class="form-section">
+                            <h3>Персональная информация</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lastName">
+                                        <i data-lucide="user"></i>
+                                        Фамилия *
+                                    </label>
+                                    <input type="text" id="lastName" placeholder="Иванов" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstName">
+                                        <i data-lucide="user"></i>
+                                        Имя *
+                                    </label>
+                                    <input type="text" id="firstName" placeholder="Иван" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="middleName">
+                                        <i data-lucide="user"></i>
+                                        Отчество
+                                    </label>
+                                    <input type="text" id="middleName" placeholder="Иванович">
+                                </div>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label>Имя</label>
-                            <input type="text" id="fn" placeholder="Ivan" required>
+
+                        <div class="form-section">
+                            <h3>Служебная информация</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="position">
+                                        <i data-lucide="briefcase"></i>
+                                        Должность *
+                                    </label>
+                                    <select id="position" required>
+                                        <option value="">Выберите должность...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="department">
+                                        <i data-lucide="building"></i>
+                                        Отдел
+                                    </label>
+                                    <select id="department">
+                                        <option value="">Выберите отдел...</option>
+                                        <option value="it">IT отдел</option>
+                                        <option value="hr">HR отдел</option>
+                                        <option value="sales">Отдел продаж</option>
+                                        <option value="marketing">Маркетинг</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="field">
-                            <label>Отчество</label>
-                            <input type="text" id="mn" placeholder="Olegovich">
+
+                        <div class="form-section">
+                            <h3>Системные учетные записи</h3>
+
+                            <div class="preview-card">
+                                <div class="preview-header">
+                                    <i data-lucide="eye"></i>
+                                    <span>Предварительный просмотр</span>
+                                </div>
+                                <div class="preview-grid">
+                                    <div class="preview-item">
+                                        <small><i data-lucide="user"></i> Логин AD</small>
+                                        <p id="preview-login">-</p>
+                                    </div>
+                                    <div class="preview-item">
+                                        <small><i data-lucide="mail"></i> Корпоративная почта</small>
+                                        <p id="preview-email">-</p>
+                                    </div>
+                                    <div class="preview-item">
+                                        <small><i data-lucide="key"></i> Временный пароль</small>
+                                        <p id="preview-password">••••••••</p>
+                                        <button type="button" class="btn-small" onclick="generatePassword()">
+                                            <i data-lucide="refresh-cw"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="systems-grid">
+                                <div class="system-toggle">
+                                    <input type="checkbox" id="adRequired" checked>
+                                    <label for="adRequired">
+                                        <div class="system-icon ad">
+                                            <i data-lucide="shield"></i>
+                                        </div>
+                                        <div class="system-info">
+                                            <span class="system-name">Active Directory</span>
+                                            <small>Корпоративная аутентификация</small>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="system-toggle">
+                                    <input type="checkbox" id="mailRequired" checked>
+                                    <label for="mailRequired">
+                                        <div class="system-icon mail">
+                                            <i data-lucide="mail"></i>
+                                        </div>
+                                        <div class="system-info">
+                                            <span class="system-name">Mail.ru для бизнеса</span>
+                                            <small>Корпоративная почта</small>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="system-toggle">
+                                    <input type="checkbox" id="bitwardenRequired" checked>
+                                    <label for="bitwardenRequired">
+                                        <div class="system-icon bitwarden">
+                                            <i data-lucide="key"></i>
+                                        </div>
+                                        <div class="system-info">
+                                            <span class="system-name">BitWarden</span>
+                                            <small>Менеджер паролей</small>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="clearForm()">
+                                <i data-lucide="x"></i>
+                                Очистить форму
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i data-lucide="user-plus"></i>
+                                Создать все учетные записи
+                                <i data-lucide="chevron-right" class="btn-icon-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Боковая панель -->
+                <div class="card sidebar-info">
+                    <div class="card-header">
+                        <h2><i data-lucide="info"></i>Информация</h2>
+                    </div>
+
+                    <div class="info-section">
+                        <h3><i data-lucide="zap"></i>Что будет создано</h3>
+                        <ul class="info-list">
+                            <li><i data-lucide="check-circle"></i>Учетная запись в AD</li>
+                            <li><i data-lucide="check-circle"></i>Почтовый ящик на Mail.ru</li>
+                            <li><i data-lucide="check-circle"></i>Запись в BitWarden</li>
+                            <li><i data-lucide="check-circle"></i>Запись в базе данных</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-section">
+                        <h3><i data-lucide="clock"></i>Статистика</h3>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="users-today">0</span>
+                                <small>сегодня</small>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="users-week">0</span>
+                                <small>за неделю</small>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="users-total">0</span>
+                                <small>всего</small>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="field" style="margin-top: 1.5rem;">
-                        <label>Должность сотрудника</label>
-                        <select id="pos" required>
-                            <option value="">Выберите роль из матрицы...</option>
-                        </select>
+                    <div class="info-section">
+                        <h3><i data-lucide="alert-circle"></i>Быстрые действия</h3>
+                        <button type="button" class="btn-outline full-width" onclick="openMailForm()">
+                            <i data-lucide="mail-plus"></i>
+                            Только почтовый ящик
+                        </button>
+                        <button type="button" class="btn-outline full-width mt-1" onclick="testConnections()">
+                            <i data-lucide="wifi"></i>
+                            Проверить подключения
+                        </button>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="preview-card">
-                        <div class="preview-item">
-                            <small>Логин AD</small>
-                            <p id="view-login">-</p>
+        <!-- Вкладка добавления в Mail.ru -->
+        <div class="tab-content" id="mail-tab">
+            <div class="page-header">
+                <div>
+                    <h1><i data-lucide="mail-plus" class="header-icon"></i>Добавление в Mail.ru</h1>
+                    <p class="subtitle">Создание почтовых ящиков для существующих сотрудников</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><i data-lucide="user-search"></i>Поиск сотрудника</h2>
+                </div>
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="searchEmployee">
+                                <i data-lucide="search"></i>
+                                Поиск по имени или логину
+                            </label>
+                            <input type="text" id="searchEmployee" placeholder="Введите фамилию или логин...">
                         </div>
-                        <div class="preview-item">
-                            <small>Корпоративный Email</small>
-                            <p id="view-mail">-</p>
-                        </div>
+                        <button type="button" class="btn-secondary" onclick="searchEmployee()">
+                            <i data-lucide="search"></i>
+                            Найти
+                        </button>
                     </div>
+                </div>
 
-                    <label class="toggle-row">
-                        <input type="checkbox" id="mailReq">
-                        <span>Развернуть почтовый ящик на Mail.ru</span>
-                    </label>
+                <div class="employee-list" id="employeeList">
+                    <!-- Список сотрудников будет загружен здесь -->
+                </div>
 
-                    <button type="submit" class="btn-submit">
-                        Создать профиль сотрудника
-                        <i data-lucide="chevron-right"></i>
+                <div class="form-section">
+                    <h3>Или создайте новый почтовый ящик</h3>
+                    <form id="mailForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mailLastName">Фамилия *</label>
+                                <input type="text" id="mailLastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mailFirstName">Имя *</label>
+                                <input type="text" id="mailFirstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mailLogin">Логин (для почты) *</label>
+                                <input type="text" id="mailLogin" required>
+                                <small class="hint">Будет использован для email</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mailPassword">Пароль *</label>
+                                <div class="password-input">
+                                    <input type="password" id="mailPassword" required>
+                                    <button type="button" class="btn-password-toggle" onclick="togglePassword('mailPassword')">
+                                        <i data-lucide="eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mailDomain">Домен *</label>
+                                <select id="mailDomain" required>
+                                    <option value="company.ru">company.ru</option>
+                                    <option value="corp.ru">corp.ru</option>
+                                    <option value="office.ru">office.ru</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="resetMailForm()">
+                                <i data-lucide="rotate-ccw"></i>
+                                Сбросить
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i data-lucide="mail-plus"></i>
+                                Создать почтовый ящик
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно результатов -->
+        <div class="modal" id="resultModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i data-lucide="check-circle"></i>Операция завершена</h3>
+                    <button class="modal-close" onclick="closeModal()">
+                        <i data-lucide="x"></i>
                     </button>
-                </form>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <!-- Контент модального окна -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="closeModal()">Понятно</button>
+                </div>
             </div>
         </div>
     </main>

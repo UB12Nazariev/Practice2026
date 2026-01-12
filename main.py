@@ -2,49 +2,92 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
 import os
+import logging
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+import datetime
+from config.config import load_config, Config
+from api.endpoints import router as api_router
+from database.connection import init_db, close_db
 
-# 1. ГАРАНТИРОВАННОЕ ОПРЕДЕЛЕНИЕ ПУТИ
-# Находим папку, в которой лежит текущий файл main.py
+# Загрузка конфигурации
+config: Config = load_config()
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.getLevelName(level=config.log.level),
+    format=config.log.format,
+)
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Управление жизненным циклом приложения"""
+    # Инициализация при запуске
+    logger.info("🚀 Starting StaffFlow application...")
+
+    # Инициализация БД
+    await init_db()
+    logger.info("✅ Database initialized")
+
+    yield
+
+    # Очистка при завершении
+    logger.info("🛑 Shutting down StaffFlow application...")
+    await close_db()
+
+
+# Создание приложения FastAPI
+app = FastAPI(
+    title="StaffFlow API",
+    description="Система автоматического онбординга сотрудников",
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
+)
+
+# Подключение маршрутов API
+app.include_router(api_router, prefix="/api")
+
+# Настройка статических файлов
 current_dir = os.path.dirname(os.path.abspath(__file__))
 static_dir = os.path.join(current_dir, "static")
 
-# Проверка в консоли при запуске
-if not os.path.exists(static_dir):
-    print(f"❌ ОШИБКА: Папка не найдена по пути: {static_dir}")
-    print(f"Проверьте, что папка 'static' находится в {current_dir}")
-else:
-    print(f"✅ УСПЕХ: Статика обнаружена в: {static_dir}")
-
-# 2. ДАННЫЕ (ОСТАЕМСЯ НА ПРЕЖНЕЙ ЛОГИКЕ)
-class User(BaseModel):
-    lastName: str
-    firstName: str
-    middleName: str = ""
-    position: str
-    mailRequired: bool
-
-@app.get("/api/positions")
-async def get_pos():
-    return ["DevOps Engineer", "Backend Developer", "Product Manager"]
-
-@app.post("/api/register")
-async def register(user: User):
-    return {"status": "success", "login": f"{user.lastName.lower()}.test"}
-
-# 3. МОНТИРОВАНИЕ (Теперь с абсолютным путем)
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    logger.info(f"✅ Static files mounted from: {static_dir}")
+else:
+    logger.warning(f"⚠️ Static directory not found: {static_dir}")
 
+
+# Корневой маршрут для фронтенда
 @app.get("/")
-async def root():
+async def serve_frontend():
     index_path = os.path.join(static_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"error": "index.html not found inside static folder"}
+    return {"error": "Frontend not found. Please check static files."}
+
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "service": "StaffFlow",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat()
+    }
+
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(
+        "main:app",
+        host=config.server.host,
+        port=config.server.port,
+        reload=config.server.reload
+    )
