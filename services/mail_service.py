@@ -65,6 +65,7 @@ async def create_mail_account_async(
         mail_response = await call_mail_api(access_token, user_data)
 
         if mail_response.get("success"):
+            print(mail_response.get("response_json")['id'])
             # Сохранение информации в базу данных
             if employee_id:
                 conn = await get_db_connection()
@@ -74,7 +75,7 @@ async def create_mail_account_async(
                         employee_id=employee_id,
                         email=email,
                         mail_password=password,
-                        mail_user_id=mail_response.get("mail_user_id"),
+                        mail_user_id=mail_response.get("response_json").get('id'),
                         status="created"
                     )
                     logger.info(f"✅ Почтовый ящик для {login} успешно создан и сохранен в БД")
@@ -149,22 +150,26 @@ async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[st
         logger.info(f"Вызов Mail.ru API для пользователя: {user_data['username']}")
 
         # Имитация задержки сети
-        await asyncio.sleep(2)
+        # await asyncio.sleep(2)
 
         # Демо-ответ (успешный)
         # В реальном приложении будет что-то вроде:
-        # async with aiohttp.ClientSession() as session:
-        #     async with session.post(
-        #         f"{config.mail.api_url}/domains/{config.mail.domain_id}/users",
-        #         params={"access_token": access_token},
-        #         json=user_data,
-        #         ssl=False
-        #     ) as response:
-        #         if response.status == 201:
-        #             return await response.json()
-        #         else:
-        #             error_text = await response.text()
-        #             return {"success": False, "error": error_text}
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{config.mail.api_url}/domains/{config.mail.domain_id}/users",
+                params={"access_token": access_token},
+                json=user_data,
+                ssl=False
+            ) as response:
+                if response.status == 201:
+                    print("Статус код 201")
+                    response_json = await response.json()
+                    print("Через метод словаря: ", response_json.get('id'))
+                    print("Через метод массива", response_json['id'])
+                    return {"success": True, "response_json": response_json}
+                else:
+                    error_text = await response.text()
+                    return {"success": False, "error": error_text}
 
         # Для тестирования можно раскомментировать для имитации ошибки:
         # if secrets.randbelow(10) < 2:  # 20% chance of error
@@ -173,13 +178,13 @@ async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[st
         #         "error": "Domain quota exceeded"
         #     }
 
-        return {
-            "success": True,
-            "user_id": f"mail_user_{secrets.token_hex(8)}",
-            "domain_id": config.mail.domain_id,
-            "email": user_data['email'],
-            "mail_user_id": f"MU{secrets.token_hex(10)}"
-        }
+        # return {
+        #     "success": True,
+        #     "user_id": f"mail_user_{secrets.token_hex(8)}",
+        #     "domain_id": config.mail.domain_id,
+        #     "email": user_data['email'],
+        #     "mail_user_id": f"MU{secrets.token_hex(10)}"
+        # }
 
     except aiohttp.ClientError as e:
         logger.error(f"Сетевая ошибка при вызове Mail.ru API: {str(e)}")
