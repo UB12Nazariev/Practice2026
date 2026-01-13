@@ -135,7 +135,8 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
                 user.lastName,
                 user.firstName,
                 login,
-                user.position
+                user.position,
+                employee_id  # Передаем ID для связи в БД
             )
             logger.info(f"Добавлена задача на создание AD аккаунта для {login}")
 
