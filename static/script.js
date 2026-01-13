@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Инициализация иконок Lucide
-//    lucide.createIcons();
+    lucide.createIcons();
 
     const API = "/api";
     let currentPassword = generateSecurePassword();

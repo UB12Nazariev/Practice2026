@@ -46,6 +46,7 @@ async def create_mail_account_async(
 
         # Генерация или использование кастомного пароля
         password = custom_password if custom_password else generate_secure_password()
+        print("Сгенерированный пароль: ", password)
 
         # Подготовка данных для API Mail.ru
         user_data = {
@@ -53,8 +54,8 @@ async def create_mail_account_async(
             "password": password,
             "firstname": first_name,
             "lastname": last_name,
-            "position": position,
-            "email": email
+            # "position": position,
+            # "email": email
         }
 
         # Получение токена доступа

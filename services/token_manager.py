@@ -23,7 +23,7 @@ class TokenStorage(ABC):
 
 
 class FileTokenStorage(TokenStorage):
-    def __init__(self, filepath="../tokens.json"):
+    def __init__(self, filepath="/Users/user/pythonProject/pythonProject/PetProect/Practice2026/tokens.json"):
         self.filepath = filepath
 
     def save(self, tokens: Dict):
@@ -53,6 +53,7 @@ class TokenManager:
         if not hasattr(self, 'initialized'):
             self.storage = storage or FileTokenStorage()
             self.tokens = self.storage.load() or {}
+            # print("Доступные токены: ", self.tokens)
             self.refresh_lock = threading.Lock()
             self.initialized = True
 
@@ -77,6 +78,7 @@ class TokenManager:
         """Обновление токенов"""
         with self.refresh_lock:
             refresh_token = self.tokens.get('refresh_token')
+            # print("refresh_token: ", refresh_token)
 
             if not refresh_token:
                 raise ValueError("No refresh token available")
