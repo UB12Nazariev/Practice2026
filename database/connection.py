@@ -35,7 +35,7 @@ async def init_db():
         # ДОБАВЬТЕ ЭТИ СТРОКИ:
         from database.db import create_tables
         async with _pool.acquire() as conn:
-            await create_tables(conn)
+            await create_tables()
             logger.info("✅ Таблицы базы данных успешно созданы/проверены")
 
     except Exception as e:
