@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 tokens.json
 .idea
+/.postgres_data
+/.pgadmin_data
