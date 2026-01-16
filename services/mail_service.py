@@ -46,7 +46,7 @@ async def create_mail_account_async(
 
         # Генерация или использование кастомного пароля
         password = custom_password if custom_password else generate_secure_password()
-        print("Сгенерированный пароль: ", password)
+        # print("Сгенерированный пароль: ", password)
 
         # Подготовка данных для API Mail.ru
         user_data = {
@@ -65,7 +65,6 @@ async def create_mail_account_async(
         mail_response = await call_mail_api(access_token, user_data)
 
         if mail_response.get("success"):
-            print(mail_response.get("response_json")['id'])
             # Сохранение информации в базу данных
             if employee_id:
                 conn = await get_db_connection()
@@ -75,7 +74,7 @@ async def create_mail_account_async(
                         employee_id=employee_id,
                         email=email,
                         mail_password=password,
-                        mail_user_id=mail_response.get("response_json").get('id'),
+                        mail_user_id=mail_response.get('response_json').get('id'),
                         status="created"
                     )
                     logger.info(f"✅ Почтовый ящик для {login} успешно создан и сохранен в БД")
@@ -164,8 +163,8 @@ async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[st
                 if response.status == 201:
                     print("Статус код 201")
                     response_json = await response.json()
-                    print("Через метод словаря: ", response_json.get('id'))
-                    print("Через метод массива", response_json['id'])
+                    # print("Через метод словаря: ", response_json.get('id'))
+                    # print("Через метод массива", response_json['id'])
                     return {"success": True, "response_json": response_json}
                 else:
                     error_text = await response.text()
