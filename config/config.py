@@ -4,11 +4,11 @@ from typing import Optional
 
 class DatabaseConfig(BaseSettings):
     """Конфигурация базы данных"""
-    name: str = "postgres_distributed"
+    name: str = "staffflow"
     host: str = "localhost"
     port: int = 5432
     user: str = "postgres"
-    password: str = "postgresGeorgy"
+    password: str = "postgres"
 
     model_config = SettingsConfigDict(
         env_prefix="postgres_",

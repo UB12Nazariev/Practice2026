@@ -18,35 +18,28 @@ def get_config() -> Config:
 
 
 async def init_db():
-    """Инициализация пула соединений с БД"""
     global _pool
-    config = get_config()
-
     try:
+        config = load_config()
         _pool = await asyncpg.create_pool(
-            host=config.db.host,
-            port=config.db.port,
             user=config.db.user,
             password=config.db.password,
             database=config.db.name,
-            min_size=1,
-            max_size=10,
-            timeout=30,
-            command_timeout=5
+            host=config.db.host,
+            port=config.db.port,
+            min_size=5,
+            max_size=20
         )
+        logger.info("✅ Пул соединений БД создан")
 
-        # Проверяем соединение
-        async with _pool.acquire() as conn:
-            await conn.execute("SELECT 1")
-
-        logger.info("✅ Пул соединений с БД инициализирован")
-
-        # Создаем таблицы если их нет
+        # ДОБАВЬТЕ ЭТИ СТРОКИ:
         from database.db import create_tables
-        await create_tables()
+        async with _pool.acquire() as conn:
+            await create_tables()
+            logger.info("✅ Таблицы базы данных успешно созданы/проверены")
 
     except Exception as e:
-        logger.error(f"❌ Ошибка инициализации пула БД: {str(e)}")
+        logger.error(f"❌ Ошибка инициализации пула БД: {e}")
         raise
 
 
