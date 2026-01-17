@@ -63,7 +63,6 @@ async def create_mail_account_async(
 
         # Вызов API Mail.ru (демо-версия)
         mail_response = await call_mail_api(access_token, user_data)
-
         if mail_response.get("success"):
             # Сохранение информации в базу данных
             if employee_id:
@@ -143,16 +142,9 @@ async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[st
         Ответ от API Mail.ru
     """
     try:
-        # В реальном приложении здесь будет вызов настоящего API
-        # Для демо-режима имитируем API вызов
 
         logger.info(f"Вызов Mail.ru API для пользователя: {user_data['username']}")
 
-        # Имитация задержки сети
-        # await asyncio.sleep(2)
-
-        # Демо-ответ (успешный)
-        # В реальном приложении будет что-то вроде:
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 f"{config.mail.api_url}/domains/{config.mail.domain_id}/users",
@@ -161,10 +153,8 @@ async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[st
                 ssl=False
             ) as response:
                 if response.status == 201:
-                    print("Статус код 201")
+                    logger.info("Вызов Mail.ru API: статус код 201")
                     response_json = await response.json()
-                    # print("Через метод словаря: ", response_json.get('id'))
-                    # print("Через метод массива", response_json['id'])
                     return {"success": True, "response_json": response_json}
                 else:
                     error_text = await response.text()
