@@ -142,7 +142,6 @@ async def search_employees(
 ) -> List[Dict[str, Any]]:
     """Поиск сотрудников по имени, фамилии или логину"""
     try:
-        # Используем ILIKE для регистронезависимого поиска
         search_pattern = f"%{query}%"
 
         rows = await conn.fetch("""
@@ -188,6 +187,64 @@ async def search_employees(
 
     except Exception as e:
         logger.error(f"Ошибка поиска сотрудников: {str(e)}")
+        raise
+
+
+async def get_employees_paginated(
+        conn: asyncpg.Connection,
+        limit: int = 20,
+        offset: int = 0
+) -> Dict[str, Any]:
+    """Получить список сотрудников с пагинацией для таблицы"""
+    try:
+        # Получаем общее количество
+        total_count = await conn.fetchval("SELECT COUNT(*) FROM employees")
+
+        # Получаем данные
+        rows = await conn.fetch("""
+            SELECT 
+                e.id,
+                e.last_name,
+                e.first_name,
+                e.middle_name,
+                e.login,
+                e.email,
+                e.position,
+                e.department,
+                e.created_at,
+                CASE WHEN em.status = 'created' THEN true ELSE false END as mail_active,
+                CASE WHEN ad.status = 'created' THEN true ELSE false END as ad_active
+            FROM employees e
+            LEFT JOIN employee_mail_accounts em ON e.id = em.employee_id
+            LEFT JOIN employee_ad_accounts ad ON e.id = ad.employee_id
+            ORDER BY e.created_at DESC
+            LIMIT $1 OFFSET $2
+        """, limit, offset)
+
+        items = []
+        for row in rows:
+            items.append({
+                "id": row["id"],
+                "fullName": f"{row['last_name']} {row['first_name']} {row['middle_name'] or ''}".strip(),
+                "login": row["login"],
+                "email": row["email"],
+                "position": row["position"],
+                "department": row["department"],
+                "status": {
+                    "mail": row["mail_active"],
+                    "ad": row["ad_active"]
+                },
+                "created_at": row["created_at"]
+            })
+
+        return {
+            "items": items,
+            "total": total_count,
+            "page": (offset // limit) + 1,
+            "size": limit
+        }
+    except Exception as e:
+        logger.error(f"Ошибка получения списка сотрудников: {str(e)}")
         raise
 
 
@@ -331,10 +388,10 @@ async def get_employee_statistics(conn: asyncpg.Connection) -> Dict[str, Any]:
         """)
 
         return {
-            "total": total,
-            "with_mail": with_mail,
-            "today": today,
-            "week": week
+            "total": total or 0,
+            "with_mail": with_mail or 0,
+            "today": today or 0,
+            "week": week or 0
         }
 
     except Exception as e:
@@ -352,17 +409,17 @@ async def add_ad_account_to_employee(
     """Добавить запись об AD аккаунте в БД"""
     try:
         ad_account_id = await conn.fetchval("""
-                                            INSERT INTO employee_ad_accounts
-                                                (employee_id, ad_login, ad_ou, status)
-                                            VALUES ($1, $2, $3, $4) RETURNING id
-                                            """, employee_id, ad_login, ad_ou, status)
+            INSERT INTO employee_ad_accounts
+            (employee_id, ad_login, ad_ou, status)
+            VALUES ($1, $2, $3, $4) RETURNING id
+            """, employee_id, ad_login, ad_ou, status)
 
         # Логируем операцию
         await conn.execute("""
-                           INSERT INTO operation_logs
-                               (employee_id, operation_type, service, status, message)
-                           VALUES ($1, $2, $3, $4, $5)
-                           """, employee_id, "create_ad_account", "active_directory", "success",
+            INSERT INTO operation_logs
+            (employee_id, operation_type, service, status, message)
+            VALUES ($1, $2, $3, $4, $5)
+            """, employee_id, "create_ad_account", "active_directory", "success",
                            f"AD аккаунт {ad_login} создан")
 
         return ad_account_id
@@ -378,7 +435,7 @@ async def update_ad_account_status(
 ) -> None:
     """Обновить статус AD аккаунта"""
     await conn.execute("""
-                       UPDATE employee_ad_accounts
-                       SET status = $1
-                       WHERE employee_id = $2
-                       """, status, employee_id)
+        UPDATE employee_ad_accounts
+        SET status = $1
+        WHERE employee_id = $2
+        """, status, employee_id)

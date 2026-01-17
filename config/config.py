@@ -51,10 +51,10 @@ class MailConfig(BaseSettings):
 
 class ADConfig(BaseSettings):
     """Конфигурация Active Directory"""
-    server: str = "ldap://localhost"
-    domain: str = "company.local"
+    server: str = "ldap://192.168.76.213"
+    domain: str = "testdomain.local"
     admin_user: str = "admin"
-    admin_password: str = ""
+    admin_password: str = "SecurePass123"
 
     model_config = SettingsConfigDict(
         env_prefix="ad_"
