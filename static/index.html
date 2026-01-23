@@ -235,7 +235,10 @@
                                     </div>
                                     <div class="preview-item">
                                         <small><i data-lucide="key"></i> Временный пароль</small>
-                                        <input id="generatedPassword" type="text" readonly />
+
+                                        <!-- 👇 preview для JS -->
+                                        <p id="preview-password" class="preview-value">••••••••</p>
+
                                         <button type="button" class="btn-small" onclick="regeneratePassword()">
                                             <i data-lucide="refresh-cw"></i>
                                         </button>

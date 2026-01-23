@@ -434,20 +434,32 @@ document.addEventListener('DOMContentLoaded', () => {
     async function regeneratePassword() {
         try {
             const response = await fetch("/api/generate-password");
-            if (!response.ok) throw new Error("Ошибка генерации пароля");
+            if (!response.ok) {
+                throw new Error("Ошибка генерации пароля");
+            }
 
+            const data = await response.json();
+
+            // обновляем ЕДИНСТВЕННЫЙ источник
             generatedPassword = data.password;
+
+            // preview
             const preview = document.getElementById("preview-password");
-            if (preview) preview.textContent = generatedPassword;
+            if (preview) {
+                preview.textContent = generatedPassword;
+            }
+
+            // input
             const input = document.getElementById("generatedPassword");
             if (input) {
                 input.value = generatedPassword;
                 input.type = "text";
             }
+
             console.log("🔁 Пароль перегенерирован:", generatedPassword);
 
         } catch (e) {
-            console.error(e);
+            console.error("❌ regeneratePassword error:", e);
             showNotification("Ошибка генерации пароля", "error");
         }
     }
