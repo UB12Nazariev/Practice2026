@@ -816,3 +816,49 @@ body {
     border-top: none;
     padding-top: 0;
 }
+
+.hidden {
+    display: none !important;
+}
+
+.login-screen {
+    position: fixed;
+    inset: 0;
+    background: #f9fafb;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.login-error {
+    color: #dc2626;
+    margin-top: 10px;
+    text-align: center;
+}

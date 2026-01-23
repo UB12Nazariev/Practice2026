@@ -3,8 +3,8 @@ from typing import Optional
 
 
 class CreateLoginRequest(BaseModel):
-    organization_id: str = Field(..., description="Bitwarden organization ID")
-    collection_id: str = Field(..., description="Bitwarden collection ID")
+    # organization_id: str = Field(..., description="Bitwarden organization ID")
+    # collection_id: str = Field(..., description="Bitwarden collection ID")
     name: str = Field(..., description="Login name in Bitwarden")
     username: str = Field(..., description="Login username")
     password: str = Field(..., description="Login password")

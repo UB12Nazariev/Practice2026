@@ -1,16 +1,26 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
+
 class DatabaseConfig(BaseSettings):
     host: str = "localhost"
     port: int = "5432"
     name: str = "staffflow"
     user: str = "postgres"
-    password: str = "postgres"
+    password: str = "postgresGeorgyServerOknoritet1763"
 
     model_config = SettingsConfigDict(
         env_prefix="postgres_",
         extra="ignore"  # Игнорировать лишние переменные окружения
+    )
+
+
+class Bitwarden(BaseSettings):
+    organization_id: str = "d7821ae8-b00b-4f7a-a8bf-b3d600f618c3"
+    collection_id: str = "ee1b460f-ff68-467d-a361-b3d600f618cc"
+
+    model_config = SettingsConfigDict(
+        env_prefix='btw_'
     )
 
 
@@ -59,6 +69,13 @@ class ADConfig(BaseSettings):
     )
 
 
+class AuthConfig(BaseSettings):
+    secret_key: str = "CHANGE_ME_SUPER_SECRET_KEY"
+    cookie_name: str = "staffflow_session"
+
+    model_config = SettingsConfigDict(env_prefix="auth_")
+
+
 class Config(BaseSettings):
     """Основная конфигурация приложения"""
     db: DatabaseConfig = DatabaseConfig()
@@ -66,6 +83,8 @@ class Config(BaseSettings):
     server: ServerConfig = ServerConfig()
     mail: MailConfig = MailConfig()
     ad: ADConfig = ADConfig()
+    btw: Bitwarden = Bitwarden()
+    auth: AuthConfig = AuthConfig()
 
     # Переменные окружения, которые вы видите в ошибке
     postgres_db: Optional[str] = None

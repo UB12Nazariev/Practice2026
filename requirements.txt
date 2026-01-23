@@ -17,3 +17,4 @@ fastapi
 ldap3
 python3-ldap
 pydantic
+bcrypt

@@ -6,6 +6,66 @@ document.addEventListener('DOMContentLoaded', () => {
             }
     console.log("🔥 script.js loaded");
 
+
+    //    ---------------------------Функция авторизации-----------------
+    async function checkAuth() {
+        try {
+            const res = await fetch("/auth/me");
+            if (!res.ok) throw new Error();
+
+            const user = await res.json();
+            console.log("👤 Authenticated as", user.username);
+
+            showApp();
+        } catch {
+            showLogin();
+        }
+    }
+
+    function showLogin() {
+        document.getElementById("login-screen").classList.remove("hidden");
+        document.getElementById("app-root").classList.add("hidden");
+    }
+
+    function showApp() {
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("app-root").classList.remove("hidden");
+    }
+
+    checkAuth();
+
+    const loginForm = document.getElementById("loginForm");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+            const errorEl = document.getElementById("login-error");
+
+            errorEl.textContent = "";
+
+            try {
+                const res = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (!res.ok) {
+                    throw new Error("Неверный логин или пароль");
+                }
+
+                await res.json();
+                showApp();
+            } catch (err) {
+                errorEl.textContent = err.message;
+            }
+        });
+    }
+
+
     const API = "/api";
     let currentPassword = generateSecurePassword();
     let rowsPerPage = localStorage.getItem('rowsPerPage') || 20;
@@ -691,8 +751,8 @@ async function handleBitwardenCreation(e) {
     try {
         // Собираем данные из формы
         const payload = {
-            organization_id: document.getElementById("bw-org-id").value.trim(),
-            collection_id: document.getElementById("bw-collection-id").value.trim(),
+//            organization_id: document.getElementById("bw-org-id").value.trim(),
+//            collection_id: document.getElementById("bw-collection-id").value.trim(),
             name: document.getElementById("bw-name").value.trim(),
             username: document.getElementById("bw-username").value.trim(),
             password: document.getElementById("bw-password").value.trim(),
@@ -702,8 +762,8 @@ async function handleBitwardenCreation(e) {
         console.log("➡️ Payload для отправки:", payload);
 
         // ВАЖНО: Проверяем обязательные поля
-        if (!payload.organization_id || !payload.collection_id || !payload.name || !payload.username) {
-            throw new Error("Заполните все обязательные поля (Organization ID, Collection ID, Название, Username)");
+        if (!payload.name || !payload.username) {
+            throw new Error("Заполните все обязательные поля (Название, Username)");
         }
 
         // Показываем уведомление о начале процесса

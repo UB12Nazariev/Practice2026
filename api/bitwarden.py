@@ -10,13 +10,17 @@ from services.bitwarden_vault_client import (
     BitwardenVaultLocked,
     BitwardenVaultError,
 )
+from config.config import load_config
+from deps.auth import get_current_user
 
 router = APIRouter(
     prefix="/bitwarden",
     tags=["bitwarden"],
+    dependencies=[Depends(get_current_user)],
 )
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 @router.post(
@@ -24,14 +28,14 @@ logger = logging.getLogger(__name__)
     response_model=CreateLoginResponse,
 )
 def create_bitwarden_login(
-    payload: CreateLoginRequest,
-    client: BitwardenVaultClient = Depends(get_bitwarden_client),
+        payload: CreateLoginRequest,
+        client: BitwardenVaultClient = Depends(get_bitwarden_client),
 ):
     try:
         logger.info(f"Создание пароля BitWarden для")
         item = client.create_login(
-            organization_id=payload.organization_id,
-            collection_id=payload.collection_id,
+            organization_id=config.btw.organization_id,
+            collection_id=config.btw.collection_id,
             name=payload.name,
             username=payload.username,
             password=payload.password,

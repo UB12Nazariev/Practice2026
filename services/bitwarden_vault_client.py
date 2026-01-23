@@ -17,9 +17,13 @@ class BitwardenVaultClient:
         self,
         base_url: str = "http://localhost:8087",
         timeout: int = 100,
+        organization_id: str = "d7821ae8-b00b-4f7a-a8bf-b3d600f618c3",
+        collection_id: str = "ee1b460f-ff68-467d-a361-b3d600f618cc"
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.organization_id = organization_id
+        self.collection_id = collection_id
 
     # -------------------------
     # Health / status

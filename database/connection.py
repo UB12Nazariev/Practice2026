@@ -2,6 +2,7 @@ import asyncpg
 import logging
 from typing import Optional
 from config.config import Config, load_config
+from database.auth import create_auth_tables
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ async def init_db():
         from database.db import create_tables
         async with _pool.acquire() as conn:
             await create_tables()
+            await create_auth_tables(conn)
             logger.info("✅ Таблицы базы данных успешно созданы/проверены")
 
     except Exception as e:
