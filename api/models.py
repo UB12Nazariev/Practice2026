@@ -13,6 +13,7 @@ class UserCreateRequest(BaseModel):
     firstName: str = Field(..., min_length=2, max_length=50, description="Имя")
     middleName: Optional[str] = Field(None, max_length=50, description="Отчество")
     position: str = Field(..., min_length=2, max_length=100, description="Должность")
+    password: str
     adRequired: bool = Field(True, description="Создать учетную запись в AD")
     mailRequired: bool = Field(True, description="Создать почтовый ящик")
     bitwardenRequired: bool = Field(True, description="Создать пароль в BitWarden")

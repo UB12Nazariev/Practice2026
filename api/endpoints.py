@@ -133,7 +133,7 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
             user.firstName,
             user.middleName
         )
-        password = generate_password(16)
+        password = user.password
 
         email = f"{login}@company.ru"
 

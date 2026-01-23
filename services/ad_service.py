@@ -66,6 +66,7 @@ async def create_ad_account(
         if ad_conn.result["description"] != "success":
             raise Exception(ad_conn.result)
 
+        logger.warning(f"AD PASSWORD (DEBUG ONLY): {password}")
         # 2️⃣ Пароль (LDAPS)
         ad_conn.extend.microsoft.modify_password(user_dn, password)
 
@@ -75,7 +76,10 @@ async def create_ad_account(
         # 3️⃣ Активируем
         ad_conn.modify(
             user_dn,
-            {"userAccountControl": [(MODIFY_REPLACE, [512])]}
+            {
+                "userAccountControl": [(MODIFY_REPLACE, [512])],
+                "pwdLastSet": [(MODIFY_REPLACE, [0])]
+            }
         )
 
         if ad_conn.result["description"] != "success":

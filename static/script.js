@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadStatistics();
         setupEventListeners();
         updatePreview();
-
+        generatePassword();
         // Восстанавливаем настройки
         const savedRows = document.getElementById('setting-rows-per-page');
         if (savedRows) savedRows.value = rowsPerPage;
@@ -337,6 +337,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+    // ==================== PASSWORD ====================
+
+    // актуальный пароль (ЕДИНСТВЕННЫЙ источник)
+    let generatedPassword = null;
+
+    // запрос пароля с бэка
+    async function generatePassword() {
+        const response = await fetch("/api/generate-password");
+        const data = await response.json();
+
+        generatedPassword = data.password;
+
+        // preview
+        const preview = document.getElementById("preview-password");
+        if (preview) {
+            preview.textContent = generatedPassword;
+        }
+
+        // input (ОБЯЗАТЕЛЬНО)
+        const input = document.getElementById("generatedPassword");
+        if (input) {
+            input.value = generatedPassword;
+            input.type = "text";
+        }
+
+        console.log("🔐 Пароль получен с бэка:", generatedPassword);
+    }
+
+
     // ==================== ОБРАБОТКА ФОРМ ====================
 
     async function handleRegistration(e) {
@@ -353,14 +382,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstName: document.getElementById('firstName').value.trim(),
                 middleName: document.getElementById('middleName').value.trim(),
                 position: document.getElementById('position').value,
+                password: generatedPassword,
                 adRequired: document.getElementById('adRequired').checked,
                 mailRequired: document.getElementById('mailRequired').checked,
-                bitwardenRequired: document.getElementById('bitwardenRequired').checked
+                bitwardenRequired: document.getElementById('bitwardenRequired').checked,
             };
 
             if (!userData.lastName || !userData.firstName || !userData.position) {
                 throw new Error('Заполните все обязательные поля');
             }
+
+            console.log("🚀 PASSWORD SENT:", generatedPassword);
 
             const response = await fetch(`${API}/register`, {
                 method: 'POST',
@@ -404,20 +436,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch("/api/generate-password");
             if (!response.ok) throw new Error("Ошибка генерации пароля");
 
-            const data = await response.json();
-
-            // preview
+            generatedPassword = data.password;
             const preview = document.getElementById("preview-password");
-            if (preview) preview.textContent = data.password;
-
-            // поле результата после регистрации
+            if (preview) preview.textContent = generatedPassword;
             const input = document.getElementById("generatedPassword");
             if (input) {
-                input.value = data.password;
+                input.value = generatedPassword;
                 input.type = "text";
             }
-
-            console.log("🔐 Пароль получен с бэка");
+            console.log("🔁 Пароль перегенерирован:", generatedPassword);
 
         } catch (e) {
             console.error(e);
