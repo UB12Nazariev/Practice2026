@@ -35,7 +35,6 @@ def create_ad_account(
     first_name: str,
     login: str,
     position: str,
-    department: Optional[str] = None,
     employee_id: Optional[int] = None
 ) -> Dict[str, Any]:
 
@@ -71,8 +70,8 @@ def create_ad_account(
         conn.modify(user_dn, {"unicodePwd": [(MODIFY_REPLACE, [pwd])]})
         conn.modify(user_dn, {"userAccountControl": [(MODIFY_REPLACE, [512])]})
 
-        # 3️⃣ Группы (position + department)
-        groups = asyncio.run(resolve_groups(position, department))
+        # 3️⃣ Группы (position)
+        groups = asyncio.run(resolve_groups(position))
 
         for group in groups:
             conn.search(dc, f"(cn={group})", attributes=["distinguishedName"])

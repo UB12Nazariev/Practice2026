@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${emp.login}</td>
                     <td>${emp.email || '-'}</td>
                     <td>${emp.position || '-'}</td>
-                    <td>${emp.department || '-'}</td>
                     <td>
                         <span title="Почта" class="status-dot ${emp.status.mail ? 'success' : 'pending'}"></span>
                         <span title="AD" class="status-dot ${emp.status.ad ? 'success' : 'pending'}"></span>
@@ -274,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstName: document.getElementById('firstName').value.trim(),
                 middleName: document.getElementById('middleName').value.trim(),
                 position: document.getElementById('position').value,
-                department: document.getElementById('department').value,
                 adRequired: document.getElementById('adRequired').checked,
                 mailRequired: document.getElementById('mailRequired').checked,
                 bitwardenRequired: document.getElementById('bitwardenRequired').checked

@@ -140,7 +140,6 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
                 login=login,
                 email=email if user.mailRequired else None,
                 position=user.position,
-                department=user.department or "Не указан"
             )
         finally:
             await conn.close()
@@ -306,9 +305,9 @@ async def create_ad_group_rule(rule: ADGroupRuleCreate):
     try:
         await conn.execute("""
             INSERT INTO ad_group_rules
-            (position, department, ad_groups, priority)
+            (position, ad_groups, priority)
             VALUES ($1, $2, $3, $4)
-        """, rule.position, rule.department, rule.ad_groups, rule.priority)
+        """, rule.position, rule.ad_groups, rule.priority)
         return {"success": True}
     finally:
         await conn.close()
