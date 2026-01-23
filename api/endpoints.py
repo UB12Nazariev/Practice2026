@@ -161,7 +161,7 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
 
         if user.adRequired:
             background_tasks.add_task(create_ad_account, user.lastName, user.firstName, login, user.position,
-                                      employee_id)
+                                      employee_id, password)
 
         if user.mailRequired:
             background_tasks.add_task(create_mail_account_async, user.lastName, user.firstName, login, user.position,
