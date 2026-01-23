@@ -439,3 +439,21 @@ async def update_ad_account_status(
         SET status = $1
         WHERE employee_id = $2
         """, status, employee_id)
+
+async def create_ad_group_rules_table():
+    from database.connection import get_db_connection
+    conn = await get_db_connection()
+    try:
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS ad_group_rules (
+                id SERIAL PRIMARY KEY,
+                position VARCHAR(200),
+                department VARCHAR(200),
+                ad_groups TEXT[] NOT NULL,
+                priority INTEGER DEFAULT 100,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+    finally:
+        await conn.close()

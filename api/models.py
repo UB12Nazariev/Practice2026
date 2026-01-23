@@ -2,6 +2,11 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
 
+class ADGroupRuleCreate(BaseModel):
+    position: Optional[str]
+    department: Optional[str]
+    ad_groups: List[str]
+    priority: int = 100
 
 class UserCreateRequest(BaseModel):
     """Модель для создания пользователя"""
