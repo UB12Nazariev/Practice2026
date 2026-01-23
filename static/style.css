@@ -803,3 +803,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+
+/* ==================== BITWARDEN ФОРМА ==================== */
+#bitwarden-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#bitwardenForm .form-actions {
+    border-top: none;
+    padding-top: 0;
+}

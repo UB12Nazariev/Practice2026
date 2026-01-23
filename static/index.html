@@ -96,6 +96,10 @@
                 <i data-lucide="mail"></i>
                 <span>Почтовые ящики</span>
             </div>
+            <div class="nav-link" data-tab="bitwarden">
+                <i data-lucide="key"></i>
+                <span>Bitwarden</span>
+            </div>
             <div class="nav-link" data-tab="settings">
                 <i data-lucide="settings"></i>
                 <span>Настройки</span>
@@ -497,6 +501,84 @@
             </div>
         </div>
 
+        <div class="tab-content" id="bitwarden-tab">
+            <div class="page-header">
+                <div>
+                    <h1>
+                        <i data-lucide="key" class="header-icon"></i>
+                        Bitwarden
+                    </h1>
+                    <p class="subtitle">
+                        Ручное тестирование создания логинов в Bitwarden
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="max-width: 800px;">
+                <div class="card-header">
+                    <h2>
+                        <i data-lucide="plus-circle"></i>
+                        Создание логина
+                    </h2>
+                </div>
+
+                <form id="bitwardenForm">
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Organization ID</label>
+                                <!-- Изменяем id с bwOrgId на bw-org-id -->
+                                <input type="text" id="bw-org-id" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Collection ID</label>
+                                <!-- Изменяем id с bwCollectionId на bw-collection-id -->
+                                <input type="text" id="bw-collection-id" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Название</label>
+                                <!-- Изменяем id с bwName на bw-name -->
+                                <input type="text" id="bw-name" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <!-- Изменяем id с bwUsername на bw-username -->
+                                <input type="text" id="bw-username" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <!-- Изменяем id с bwPassword на bw-password -->
+                                <input type="text" id="bw-password" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <!-- Изменяем id с bwNotes на bw-notes -->
+                                <textarea id="bw-notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <!-- Изменяем id кнопки и добавляем правильный тип -->
+                        <button type="button" class="btn-primary" id="bitwarden-submit-btn">
+                            <i data-lucide="key"></i>
+                            Создать в Bitwarden
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
         <div class="modal" id="resultModal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -515,5 +597,6 @@
     </main>
 
     <script src="/static/script.js"></script>
+
 </body>
 </html>

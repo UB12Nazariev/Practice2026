@@ -1,6 +1,10 @@
+console.log("🔥 script.js loaded");
 document.addEventListener('DOMContentLoaded', () => {
     // Инициализация иконок Lucide
-    lucide.createIcons();
+    if (window.lucide) {
+                lucide.createIcons();
+            }
+    console.log("🔥 script.js loaded");
 
     const API = "/api";
     let currentPassword = generateSecurePassword();
@@ -46,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (tabName === 'database') loadEmployeesTable(1);
                         if (tabName === 'settings') loadSettings();
                         if (tabName === 'registration') loadStatistics();
+                        if (tabName === 'bitwarden' && window.lucide) {
+                            lucide.createIcons();
+                        }
                     }
                 }
             });
@@ -71,6 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Генерация пароля
         const mailPwd = document.getElementById('mailPassword');
         if(mailPwd) mailPwd.value = generateSecurePassword();
+
+        // Форма Bitwarden
+        const bitwardenSubmitBtn = document.getElementById('bitwarden-submit-btn');
+        if (bitwardenSubmitBtn) {
+            bitwardenSubmitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log("🔐 Основной обработчик Bitwarden вызван");
+                handleBitwardenCreation(e);
+            });
+        }
     }
 
     // ==================== РАБОТА С API ====================
@@ -122,7 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tbody) return;
 
         tbody.innerHTML = '<tr><td colspan="7" class="text-center"><i data-lucide="loader" class="spin"></i> Загрузка...</td></tr>';
-        lucide.createIcons();
+       if (window.lucide) {
+                lucide.createIcons();
+            }
 
         try {
             const response = await fetch(`${API}/employees?page=${page}&size=${rowsPerPage}`);
@@ -155,7 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             updatePagination(data.page, data.total, data.size);
-            lucide.createIcons();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
 
         } catch (error) {
             console.error(error);
@@ -219,7 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.checkAllConnections = async function() {
             const container = document.getElementById('connection-statuses');
             container.innerHTML = '<div class="text-center"><i data-lucide="loader" class="spin"></i> Проверка...</div>';
-            lucide.createIcons();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
 
             try {
                 // Теперь это GET запрос, совпадающий с бэкендом
@@ -306,7 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             submitBtn.innerHTML = originalContent;
             submitBtn.disabled = false;
-            lucide.createIcons();
+            if (window.lucide) {
+    lucide.createIcons();
+}
         }
     }
 
@@ -351,7 +376,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             submitBtn.innerHTML = originalContent;
             submitBtn.disabled = false;
-            lucide.createIcons();
+            if (window.lucide) {
+    lucide.createIcons();
+}
         }
     }
 
@@ -428,7 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
             input.type = 'password';
             icon.setAttribute('data-lucide', 'eye');
         }
-        lucide.createIcons();
+        if (window.lucide) {
+            lucide.createIcons();
+           }
     }
 
     // ==================== МОДАЛЬНЫЕ ОКНА И УВЕДОМЛЕНИЯ ====================
@@ -453,7 +482,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
         `;
         container.appendChild(notification);
-        lucide.createIcons();
+        if (window.lucide) {
+            lucide.createIcons();
+        }
 
         setTimeout(() => {
             if (notification.parentElement) {
@@ -509,7 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         content.innerHTML = html;
         modal.classList.add('active');
-        lucide.createIcons();
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     }
 
     function closeModal() {
@@ -588,13 +621,86 @@ document.addEventListener('DOMContentLoaded', () => {
             html += '</div>';
 
             container.innerHTML = html;
-            lucide.createIcons();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
 
         } catch (error) {
             console.error('Ошибка поиска:', error);
             showNotification('Ошибка при поиске сотрудников', 'error');
         }
     }
+
+
+// ==================== BITWARDEN ФОРМА ====================
+
+async function handleBitwardenCreation(e) {
+    e.preventDefault();
+    console.log("🔐 Bitwarden submit clicked");
+
+    try {
+        // Собираем данные из формы
+        const payload = {
+            organization_id: document.getElementById("bw-org-id").value.trim(),
+            collection_id: document.getElementById("bw-collection-id").value.trim(),
+            name: document.getElementById("bw-name").value.trim(),
+            username: document.getElementById("bw-username").value.trim(),
+            password: document.getElementById("bw-password").value.trim(),
+            notes: document.getElementById("bw-notes").value.trim(),
+        };
+
+        console.log("➡️ Payload для отправки:", payload);
+
+        // ВАЖНО: Проверяем обязательные поля
+        if (!payload.organization_id || !payload.collection_id || !payload.name || !payload.username) {
+            throw new Error("Заполните все обязательные поля (Organization ID, Collection ID, Название, Username)");
+        }
+
+        // Показываем уведомление о начале процесса
+        showNotification("⏳ Отправка данных в Bitwarden...", "info");
+
+        // Используем правильный API endpoint
+        const response = await fetch(`/bitwarden/logins`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload),
+        });
+
+        console.log("📡 Ответ сервера:", response.status, response.statusText);
+
+        if (!response.ok) {
+            let errorMessage = `Ошибка сервера: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorData.message || errorMessage;
+            } catch {
+                // Если ответ не в JSON формате
+                const text = await response.text();
+                if (text) errorMessage = text;
+            }
+            throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log("✅ Успешный ответ:", data);
+
+        showNotification(`✅ Логин создан в Bitwarden: ${data.name || 'успешно'}`, 'success');
+
+        // Очищаем форму после успешного создания
+        document.getElementById("bitwardenForm").reset();
+
+    } catch (error) {
+        console.error("❌ Bitwarden error:", error);
+        showNotification(`❌ Ошибка Bitwarden: ${error.message}`, 'error');
+
+        // Для отладки - показываем alert с деталями ошибки
+        alert(`Ошибка Bitwarden:\n${error.message}\n\nПроверьте консоль для деталей.`);
+    }
+}
+
 
     // Экспорт функций
     window.generatePassword = generatePassword;
@@ -606,6 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.togglePassword = togglePassword;
     window.closeModal = closeModal;
     window.copyToClipboard = copyToClipboard;
+    window.handleBitwardenCreation = handleBitwardenCreation;
 
     // Стили для уведомлений
     const style = document.createElement('style');
@@ -635,4 +742,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .result-actions { display: flex; gap: 10px; margin-top: 20px; }
     `;
     document.head.appendChild(style);
+
+ // Отладочный код для проверки
+console.log("✅ Bitwarden функция загружена:", typeof handleBitwardenCreation);
+
+// Проверяем, что все элементы найдены после загрузки DOM
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("🔍 Проверка элементов Bitwarden:");
+    console.log("Кнопка найдена:", !!document.getElementById('bitwarden-submit-btn'));
+    console.log("Форма найдена:", !!document.getElementById('bitwardenForm'));
+    console.log("Поле org-id найдено:", !!document.getElementById('bw-org-id'));
+    console.log("Поле collection-id найдено:", !!document.getElementById('bw-collection-id'));
+});
 });
