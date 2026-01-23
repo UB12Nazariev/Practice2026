@@ -146,6 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${emp.position || '-'}</td>
                     <td>
                         <span title="Почта" class="status-dot ${emp.status.mail ? 'success' : 'pending'}"></span>
+                    </td>
+                    <td>
                         <span title="AD" class="status-dot ${emp.status.ad ? 'success' : 'pending'}"></span>
                     </td>
                     <td>${createdDate}</td>

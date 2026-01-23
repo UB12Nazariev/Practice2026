@@ -108,10 +108,9 @@ async def create_employee_record(
     """Создать запись сотрудника в базе данных"""
     try:
         employee_id = await conn.fetchval("""
-            INSERT INTO employees 
+            INSERT INTO employees
             (last_name, first_name, middle_name, login, email, position)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
         """, last_name, first_name, middle_name, login, email, position)
 
         logger.info(f"Сотрудник {login} добавлен в БД (ID: {employee_id})")

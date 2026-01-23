@@ -306,8 +306,9 @@ async def create_ad_group_rule(rule: ADGroupRuleCreate):
         await conn.execute("""
             INSERT INTO ad_group_rules
             (position, ad_groups, priority)
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3)
         """, rule.position, rule.ad_groups, rule.priority)
+
         return {"success": True}
     finally:
         await conn.close()
