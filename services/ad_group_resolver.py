@@ -1,25 +1,32 @@
-from typing import List, Optional
+import logging
 from database.connection import get_db_connection
 
-DEFAULT_GROUP = ["Default_Employees"]
+logger = logging.getLogger(__name__)
 
-async def resolve_groups(
-    position: str,
-) -> List[str]:
 
-    conn = await get_db_connection()
+async def resolve_groups(position: str) -> list[str]:
+    conn = None
     try:
+        conn = await get_db_connection()
         rows = await conn.fetch("""
-            SELECT ad_groups FROM ad_group_rules
+            SELECT ad_groups
+            FROM ad_group_rules
             WHERE is_active = TRUE
-              AND (position = $1 OR position IS NULL)
-            ORDER BY priority ASC
+              AND position = $1
+            ORDER BY priority
             LIMIT 1
         """, position)
 
-        if rows:
-            return rows[0]["ad_groups"]
+        if not rows:
+            logger.warning(f"⚠️ Нет AD-групп для должности: {position}")
+            return []
 
-        return DEFAULT_GROUP
+        return rows[0]["ad_groups"]
+
+    except Exception as e:
+        logger.error(f"❌ Ошибка resolve_groups: {e}")
+        return []
+
     finally:
-        await conn.close()
+        if conn:
+            await conn.close()

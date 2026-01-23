@@ -85,6 +85,20 @@ async def create_tables():
             ON employees(email)
         """)
 
+        # === Таблица правил AD-групп ===
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS ad_group_rules (
+                id SERIAL PRIMARY KEY,
+                position VARCHAR(200),
+                ad_groups TEXT[] NOT NULL,
+                priority INTEGER DEFAULT 100,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        logger.info("✅ Таблица ad_group_rules создана/проверена")
+
         logger.info("✅ Таблицы БД созданы/проверены")
 
     except Exception as e:
