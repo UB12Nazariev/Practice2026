@@ -5,7 +5,7 @@ from typing import Dict, Any
 logger = logging.getLogger(__name__)
 
 
-def create_bitwarden_password(login: str, position: str) -> Dict[str, Any]:
+def create_bitwarden_password(login: str, password: str, position: str):
     """
     Создать запись с паролем в BitWarden
 
@@ -20,7 +20,6 @@ def create_bitwarden_password(login: str, position: str) -> Dict[str, Any]:
         logger.info(f"Создание пароля BitWarden для {login}")
 
         # Генерация пароля
-        password = generate_secure_password()
 
         # Здесь должна быть интеграция с BitWarden API
 
@@ -43,11 +42,3 @@ def create_bitwarden_password(login: str, position: str) -> Dict[str, Any]:
             "success": False,
             "error": str(e)
         }
-
-
-def generate_secure_password(length: int = 24) -> str:
-    """Генерация безопасного пароля для BitWarden"""
-    import string
-
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*()_+-=[]{}|;:,.<>?"
-    return ''.join(secrets.choice(alphabet) for _ in range(length))

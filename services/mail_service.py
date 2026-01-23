@@ -45,7 +45,7 @@ async def create_mail_account_async(
         logger.info(f"Начато создание почтового ящика для {login} ({email})")
 
         # Генерация или использование кастомного пароля
-        password = custom_password if custom_password else generate_secure_password()
+        password = custom_password
         # print("Сгенерированный пароль: ", password)
 
         # Подготовка данных для API Mail.ru
@@ -121,13 +121,6 @@ async def create_mail_account_async(
                 pass
 
         raise MailServiceError(f"Failed to create mail account: {str(e)}")
-
-
-def generate_secure_password(length: int = 16) -> str:
-    """Генерация безопасного пароля"""
-    # Используем секретный модуль для криптографически безопасной генерации
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
 async def call_mail_api(access_token: str, user_data: Dict[str, Any]) -> Dict[str, Any]:

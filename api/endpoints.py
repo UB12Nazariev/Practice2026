@@ -127,11 +127,14 @@ async def get_employees_list(
 async def register_user(user: UserCreateRequest, background_tasks: BackgroundTasks):
     try:
         from core.utils import generate_login
+        from core.utils import generate_password
         login = generate_login(
             user.lastName,
             user.firstName,
             user.middleName
         )
+        password = generate_password(16)
+
         email = f"{login}@company.ru"
 
         conn = await get_db_connection()
@@ -152,6 +155,7 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
             "status": "processing",
             "login": login,
             "email": email if user.mailRequired else None,
+            "password": password,
             "message": "Регистрация пользователя начата"
         }
 
@@ -161,10 +165,10 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
 
         if user.mailRequired:
             background_tasks.add_task(create_mail_account_async, user.lastName, user.firstName, login, user.position,
-                                      email, employee_id)
+                                      email, employee_id, password)
 
         if user.bitwardenRequired:
-            background_tasks.add_task(create_bitwarden_password, login, user.position)
+            background_tasks.add_task(create_bitwarden_password, login, password, user.position)
 
         return UserResponse(**response_data)
 

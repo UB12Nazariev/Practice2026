@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const API = "/api";
-    let currentPassword = generateSecurePassword();
     let rowsPerPage = localStorage.getItem('rowsPerPage') || 20;
 
     // Инициализация приложения
@@ -134,10 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Форма создания почты
         const mailForm = document.getElementById('mailForm');
         if(mailForm) mailForm.addEventListener('submit', handleMailCreation);
-
-        // Генерация пароля
-        const mailPwd = document.getElementById('mailPassword');
-        if(mailPwd) mailPwd.value = generateSecurePassword();
 
         // Форма Bitwarden
         const bitwardenSubmitBtn = document.getElementById('bitwarden-submit-btn');
@@ -374,6 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await response.json();
 
+            const passwordInput = document.getElementById('generatedPassword');
+            if (passwordInput && result.password) {
+                passwordInput.value = result.password;
+                passwordInput.type = 'text';
+            }
+
             if (response.ok) {
                 showNotification(`✅ Сотрудник создан успешно!`, 'success');
                 showResultModal(result);
@@ -382,7 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 throw new Error(result.detail || result.message || 'Ошибка сервера');
             }
-
+            const previewPwd = document.getElementById('preview-password');
+            if (previewPwd && result.password) {
+                previewPwd.textContent = result.password;
+            }
         } catch (error) {
             console.error('Ошибка регистрации:', error);
             showNotification(`❌ Ошибка: ${error.message}`, 'error');
@@ -393,6 +397,15 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 }
         }
+    }
+
+    async function regeneratePassword() {
+        const form = document.getElementById('regForm');
+        if (!form) return;
+
+        // 🔁 Просто повторяем регистрацию (без очистки формы)
+        const event = new Event('submit', { cancelable: true });
+        form.dispatchEvent(event);
     }
 
     async function handleMailCreation(e) {
@@ -408,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastName: document.getElementById('mailLastName').value.trim(),
                 firstName: document.getElementById('mailFirstName').value.trim(),
                 login: document.getElementById('mailLogin').value.trim(),
-                password: document.getElementById('mailPassword').value,
+                password: document.getElementById('generatedPassword')?.value,
                 domain: document.getElementById('mailDomain').value
             };
 
@@ -524,22 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return login;
     }
 
-    function generatePassword() {
-        currentPassword = generateSecurePassword();
-        const previewPwd = document.getElementById('preview-password');
-        if(previewPwd) previewPwd.textContent = currentPassword;
-        showNotification('Пароль сгенерирован', 'info');
-    }
-
-    function generateSecurePassword(length = 12) {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-        let password = '';
-        for (let i = 0; i < length; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return password;
-    }
-
     function clearForm() {
         const form = document.getElementById('regForm');
         if(form) form.reset();
@@ -550,8 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetMailForm() {
         const form = document.getElementById('mailForm');
         if(form) form.reset();
-        const pwd = document.getElementById('mailPassword');
-        if(pwd) pwd.value = generateSecurePassword();
     }
 
     function togglePassword(inputId) {
@@ -813,7 +808,6 @@ async function handleBitwardenCreation(e) {
 
 
     // Экспорт функций
-    window.generatePassword = generatePassword;
     window.clearForm = clearForm;
     window.openMailForm = openMailForm;
     window.testConnections = testConnections;
@@ -823,6 +817,7 @@ async function handleBitwardenCreation(e) {
     window.closeModal = closeModal;
     window.copyToClipboard = copyToClipboard;
     window.handleBitwardenCreation = handleBitwardenCreation;
+    window.regeneratePassword = regeneratePassword;
 
     // Стили для уведомлений
     const style = document.createElement('style');
