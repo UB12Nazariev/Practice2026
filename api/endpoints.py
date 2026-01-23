@@ -224,7 +224,7 @@ async def create_mail_only(mail_request: MailCreateRequest, background_tasks: Ba
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# === ИСПРАВЛЕННЫЙ ЭНДПОИНТ ПРОВЕРКИ ===
+# === ЭНДПОИНТ ПРОВЕРКИ ===
 @router.get("/test-connections", tags=["system"])
 async def test_system_connections():
     """Реальная проверка подключения ко всем системам"""
@@ -333,3 +333,10 @@ async def list_ad_group_rules():
         """)
     finally:
         await conn.close()
+
+@router.get("/generate-password", tags=["registration"])
+async def generate_password_endpoint():
+    from core.utils import generate_password
+    return {
+        "password": generate_password(16)
+    }

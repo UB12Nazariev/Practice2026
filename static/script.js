@@ -400,12 +400,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function regeneratePassword() {
-        const form = document.getElementById('regForm');
-        if (!form) return;
+        try {
+            const response = await fetch("/api/generate-password");
+            if (!response.ok) throw new Error("Ошибка генерации пароля");
 
-        // 🔁 Просто повторяем регистрацию (без очистки формы)
-        const event = new Event('submit', { cancelable: true });
-        form.dispatchEvent(event);
+            const data = await response.json();
+
+            // preview
+            const preview = document.getElementById("preview-password");
+            if (preview) preview.textContent = data.password;
+
+            // поле результата после регистрации
+            const input = document.getElementById("generatedPassword");
+            if (input) {
+                input.value = data.password;
+                input.type = "text";
+            }
+
+            console.log("🔐 Пароль получен с бэка");
+
+        } catch (e) {
+            console.error(e);
+            showNotification("Ошибка генерации пароля", "error");
+        }
     }
 
     async function handleMailCreation(e) {
