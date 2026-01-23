@@ -11,7 +11,7 @@ from api.models import (
     PositionResponse,
     MailCreateRequest,
     MailResponse,
-    EmployeeSearchResponse
+    EmployeeSearchResponse, ADGroupRuleCreate
 )
 from services.mail_service import create_mail_account_async
 from services.ad_service import create_ad_account
@@ -126,17 +126,8 @@ async def get_employees_list(
 @router.post("/register", response_model=UserResponse, tags=["registration"])
 async def register_user(user: UserCreateRequest, background_tasks: BackgroundTasks):
     try:
-        login = f"{user.lastName.lower()}.{user.firstName[0].lower()}"
-
-        # Транслитерация
-        translit_dict = {
-            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z',
-            'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-            'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch', 'ш': 'sh',
-            'щ': 'sch', 'ь': '', 'ы': 'y', 'ъ': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
-        }
-        safe_login = "".join([translit_dict.get(char, char) for char in login])
-        login = safe_login
+        from core.utils import generate_login
+        login = generate_login(user.lastName, user.firstName)
         email = f"{login}@company.ru"
 
         conn = await get_db_connection()
@@ -149,7 +140,6 @@ async def register_user(user: UserCreateRequest, background_tasks: BackgroundTas
                 login=login,
                 email=email if user.mailRequired else None,
                 position=user.position,
-                department=user.department or "Не указан"
             )
         finally:
             await conn.close()
@@ -308,3 +298,30 @@ async def get_employee_details(login: str):
     except Exception as e:
         logger.error(f"Ошибка получения: {str(e)}")
         raise HTTPException(status_code=500, detail="Ошибка сервера")
+
+@router.post("/ad-group-rules", tags=["ad"])
+async def create_ad_group_rule(rule: ADGroupRuleCreate):
+    conn = await get_db_connection()
+    try:
+        await conn.execute("""
+            INSERT INTO ad_group_rules
+            (position, ad_groups, priority)
+            VALUES ($1, $2, $3)
+        """, rule.position, rule.ad_groups, rule.priority)
+
+        return {"success": True}
+    finally:
+        await conn.close()
+
+
+@router.get("/ad-group-rules", tags=["ad"])
+async def list_ad_group_rules():
+    conn = await get_db_connection()
+    try:
+        return await conn.fetch("""
+            SELECT * FROM ad_group_rules
+            WHERE is_active = TRUE
+            ORDER BY priority ASC
+        """)
+    finally:
+        await conn.close()

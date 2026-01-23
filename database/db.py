@@ -23,7 +23,6 @@ async def create_tables():
                 login VARCHAR(100) UNIQUE NOT NULL,
                 email VARCHAR(255) UNIQUE,
                 position VARCHAR(200),
-                department VARCHAR(200),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -105,16 +104,14 @@ async def create_employee_record(
         login: str,
         email: Optional[str],
         position: str,
-        department: str
 ) -> int:
     """Создать запись сотрудника в базе данных"""
     try:
         employee_id = await conn.fetchval("""
-            INSERT INTO employees 
-            (last_name, first_name, middle_name, login, email, position, department)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id
-        """, last_name, first_name, middle_name, login, email, position, department)
+            INSERT INTO employees
+            (last_name, first_name, middle_name, login, email, position)
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+        """, last_name, first_name, middle_name, login, email, position)
 
         logger.info(f"Сотрудник {login} добавлен в БД (ID: {employee_id})")
 
@@ -153,7 +150,6 @@ async def search_employees(
                 e.login,
                 e.email,
                 e.position,
-                e.department,
                 e.created_at,
                 CASE WHEN em.email IS NOT NULL THEN true ELSE false END as has_mail
             FROM employees e
@@ -177,7 +173,6 @@ async def search_employees(
                 "login": row["login"],
                 "email": row["email"],
                 "position": row["position"],
-                "department": row["department"],
                 "has_mail": row["has_mail"],
                 "created_at": row["created_at"]
             })
@@ -210,7 +205,6 @@ async def get_employees_paginated(
                 e.login,
                 e.email,
                 e.position,
-                e.department,
                 e.created_at,
                 CASE WHEN em.status = 'created' THEN true ELSE false END as mail_active,
                 CASE WHEN ad.status = 'created' THEN true ELSE false END as ad_active
@@ -229,7 +223,6 @@ async def get_employees_paginated(
                 "login": row["login"],
                 "email": row["email"],
                 "position": row["position"],
-                "department": row["department"],
                 "status": {
                     "mail": row["mail_active"],
                     "ad": row["ad_active"]
@@ -260,7 +253,6 @@ async def get_employee_by_login(conn: asyncpg.Connection, login: str) -> Optiona
                 e.login,
                 e.email,
                 e.position,
-                e.department,
                 e.created_at,
                 CASE WHEN em.email IS NOT NULL THEN true ELSE false END as has_mail
             FROM employees e
@@ -277,7 +269,6 @@ async def get_employee_by_login(conn: asyncpg.Connection, login: str) -> Optiona
                 "login": row["login"],
                 "email": row["email"],
                 "position": row["position"],
-                "department": row["department"],
                 "has_mail": row["has_mail"],
                 "created_at": row["created_at"]
             }
@@ -439,3 +430,20 @@ async def update_ad_account_status(
         SET status = $1
         WHERE employee_id = $2
         """, status, employee_id)
+
+async def create_ad_group_rules_table():
+    from database.connection import get_db_connection
+    conn = await get_db_connection()
+    try:
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS ad_group_rules (
+                id SERIAL PRIMARY KEY,
+                position VARCHAR(200),
+                ad_groups TEXT[] NOT NULL,
+                priority INTEGER DEFAULT 100,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+    finally:
+        await conn.close()

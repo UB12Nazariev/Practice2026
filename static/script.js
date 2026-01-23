@@ -163,9 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${emp.login}</td>
                     <td>${emp.email || '-'}</td>
                     <td>${emp.position || '-'}</td>
-                    <td>${emp.department || '-'}</td>
                     <td>
                         <span title="Почта" class="status-dot ${emp.status.mail ? 'success' : 'pending'}"></span>
+                    </td>
+                    <td>
                         <span title="AD" class="status-dot ${emp.status.ad ? 'success' : 'pending'}"></span>
                     </td>
                     <td>${createdDate}</td>
@@ -297,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 firstName: document.getElementById('firstName').value.trim(),
                 middleName: document.getElementById('middleName').value.trim(),
                 position: document.getElementById('position').value,
-                department: document.getElementById('department').value,
                 adRequired: document.getElementById('adRequired').checked,
                 mailRequired: document.getElementById('mailRequired').checked,
                 bitwardenRequired: document.getElementById('bitwardenRequired').checked
@@ -385,33 +385,83 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 
     function updatePreview() {
-        const lastName = document.getElementById('lastName').value.trim();
-        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById("lastName").value;
+        const firstName = document.getElementById("firstName").value;
+        const middleName = document.getElementById("middleName").value;
 
-        if (lastName && firstName) {
-            const login = generateLogin(lastName, firstName);
-            document.getElementById('preview-login').textContent = login;
-            document.getElementById('preview-email').textContent = `${login}@company.ru`;
-        } else {
-            document.getElementById('preview-login').textContent = '-';
-            document.getElementById('preview-email').textContent = '-';
-        }
+        const login = generateLogin(
+            lastName,
+            firstName,
+            middleName
+        );
+
+        document.getElementById("preview-login").innerText = login;
+        document.getElementById("preview-email").innerText =
+            login !== "-" ? `${login}@company.ru` : "-";
     }
 
-    function generateLogin(lastName, firstName) {
-        const translitDict = {
-            'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e',
-            'ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m',
-            'н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
-            'ф':'f','х':'h','ц':'c','ч':'ch','ш':'sh','щ':'sch','ь':'',
-            'ы':'y','ъ':'','э':'e','ю':'yu','я':'ya'
-        };
 
-        const translit = (text) => {
-            return text.toLowerCase().split('').map(c => translitDict[c] || c).join('');
-        };
 
-        return `${translit(lastName)}.${translit(firstName).charAt(0)}`;
+    function normalizeName(value) {
+        return value
+            .toLowerCase()
+            .replace(/ь/g, "")
+            .replace(/ъ/g, "");
+    }
+
+    const TRANSLIT_MAP = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d",
+        "е": "e", "ё": "e", "ж": "zh", "з": "z",
+        "и": "i", "й": "y", "к": "k", "л": "l",
+        "м": "m", "н": "n", "о": "o", "п": "p",
+        "р": "r", "с": "s", "т": "t", "у": "u",
+        "ф": "f", "х": "h", "ц": "c", "ч": "ch",
+        "ш": "sh", "щ": "sch",
+        "ы": "y", "э": "e",
+        "ю": "yu", "я": "ya"
+    };
+    const INITIAL_TRANSLIT_MAP = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d",
+        "е": "e", "ё": "e", "ж": "z", "з": "z",
+        "и": "i", "й": "y", "к": "k", "л": "l",
+        "м": "m", "н": "n", "о": "o", "п": "p",
+        "р": "r", "с": "s", "т": "t", "у": "u",
+        "ф": "f", "х": "h", "ц": "c", "ч": "c",
+        "ш": "s", "щ": "s",
+        "ы": "y", "э": "e",
+        "ю": "y",   // 🔥 ВАЖНО
+        "я": "y"
+    };
+
+    function translit(value) {
+        return value
+            .split("")
+            .map(ch => TRANSLIT_MAP[ch] ?? ch)
+            .join("");
+    }
+
+    function translitInitial(ch) {
+        return INITIAL_TRANSLIT_MAP[ch] ?? ch;
+    }
+
+    function generateLogin(lastName, firstName, middleName) {
+        if (!lastName || !firstName) return "-";
+
+        const last = translit(normalizeName(lastName));
+        const firstInitial = translitInitial(
+            normalizeName(firstName)[0]
+        );
+
+        let login = `${last}.${firstInitial}`;
+
+        if (middleName && middleName.trim().length > 0) {
+            const middleInitial = translitInitial(
+                normalizeName(middleName)[0]
+            );
+            login += `.${middleInitial}`;
+        }
+
+        return login;
     }
 
     function generatePassword() {

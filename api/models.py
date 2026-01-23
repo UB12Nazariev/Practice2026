@@ -2,6 +2,10 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
 
+class ADGroupRuleCreate(BaseModel):
+    position: Optional[str]
+    ad_groups: List[str]
+    priority: int = 100
 
 class UserCreateRequest(BaseModel):
     """Модель для создания пользователя"""
@@ -9,7 +13,6 @@ class UserCreateRequest(BaseModel):
     firstName: str = Field(..., min_length=2, max_length=50, description="Имя")
     middleName: Optional[str] = Field(None, max_length=50, description="Отчество")
     position: str = Field(..., min_length=2, max_length=100, description="Должность")
-    department: Optional[str] = Field(None, max_length=100, description="Отдел")
     adRequired: bool = Field(True, description="Создать учетную запись в AD")
     mailRequired: bool = Field(True, description="Создать почтовый ящик")
     bitwardenRequired: bool = Field(True, description="Создать пароль в BitWarden")
@@ -57,7 +60,6 @@ class EmployeeSearchResponse(BaseModel):
     login: str
     email: Optional[str]
     position: Optional[str]
-    department: Optional[str]
     has_mail: bool = False
     created_at: datetime
 

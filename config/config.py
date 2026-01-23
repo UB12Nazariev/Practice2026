@@ -1,12 +1,10 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
-
 class DatabaseConfig(BaseSettings):
-    """Конфигурация базы данных"""
-    name: str = "staffflow"
     host: str = "localhost"
-    port: int = 5432
+    port: int = "5432"
+    name: str = "staffflow"
     user: str = "postgres"
     password: str = "postgres"
 
@@ -51,7 +49,7 @@ class MailConfig(BaseSettings):
 
 class ADConfig(BaseSettings):
     """Конфигурация Active Directory"""
-    server: str = "ldap://192.168.76.213"
+    server: str = "ldap://192.168.124.128"
     domain: str = "testdomain.local"
     admin_user: str = "admin"
     admin_password: str = "SecurePass123"
