@@ -7,7 +7,7 @@ class DatabaseConfig(BaseSettings):
     port: int = "5432"
     name: str = "staffflow"
     user: str = "postgres"
-    password: str = "postgresGeorgyServerOknoritet1763"
+    password: str = "postgres"
 
     model_config = SettingsConfigDict(
         env_prefix="postgres_",
