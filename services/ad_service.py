@@ -49,7 +49,7 @@ def create_ad_account(
     )
 
     dc = build_dc(config.ad.domain)
-    user_ou = f"OU=Users,{dc}"
+    user_ou = f"OU=Employees,{dc}"
     user_dn = f"CN={last_name} {first_name},{user_ou}"
 
     try:

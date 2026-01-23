@@ -127,7 +127,11 @@ async def get_employees_list(
 async def register_user(user: UserCreateRequest, background_tasks: BackgroundTasks):
     try:
         from core.utils import generate_login
-        login = generate_login(user.lastName, user.firstName)
+        login = generate_login(
+            user.lastName,
+            user.firstName,
+            user.middleName
+        )
         email = f"{login}@company.ru"
 
         conn = await get_db_connection()
