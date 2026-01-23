@@ -59,7 +59,7 @@ class MailConfig(BaseSettings):
 
 class ADConfig(BaseSettings):
     """Конфигурация Active Directory"""
-    server: str = "ldap://192.168.76.101"
+    server: str = "192.168.76.101"
     domain: str = "testdomain.local"
     admin_user: str = "admin"
     admin_password: str = "SecurePass123"

@@ -1,17 +1,11 @@
 import logging
 import ssl
-from ldap3 import (
-    Server, Connection, ALL,
-    MODIFY_REPLACE, MODIFY_ADD, Tls
-)
+from ldap3 import Server, Connection, MODIFY_REPLACE, MODIFY_ADD, Tls
 
 from config.config import load_config
 from core.ad_utils import build_dc
 from database.connection import get_db_connection
-from database.db import (
-    add_ad_account_to_employee,
-    update_ad_account_status
-)
+from database.db import add_ad_account_to_employee, update_ad_account_status
 from services.ad_group_resolver import resolve_groups
 
 logger = logging.getLogger(__name__)
@@ -35,17 +29,15 @@ async def create_ad_account(
         dc = build_dc(config.ad.domain)
 
         server = Server(
-            config.ad.server,      # FQDN DC
+            config.ad.server,   # ТОЛЬКО FQDN
             port=636,
             use_ssl=True,
             tls=Tls(
                 validate=ssl.CERT_NONE,
                 version=ssl.PROTOCOL_TLSv1_2
-            ),
-            get_info=ALL
+            )
         )
 
-        # ✅ SIMPLE BIND по LDAPS — ЭТО ПРАВИЛЬНО
         ad_conn = Connection(
             server,
             user=admin_dn,
@@ -55,16 +47,11 @@ async def create_ad_account(
 
         user_dn = f"CN={last_name} {first_name},OU=Employees,{dc}"
 
-        # 1️⃣ Создаём пользователя (DISABLED)
+        # 1️⃣ Создаём пользователя (disabled)
         ad_conn.add(
             user_dn,
             attributes={
-                "objectClass": [
-                    "top",
-                    "person",
-                    "organizationalPerson",
-                    "user"
-                ],
+                "objectClass": ["top", "person", "organizationalPerson", "user"],
                 "cn": f"{last_name} {first_name}",
                 "sn": last_name,
                 "givenName": first_name,
@@ -72,15 +59,16 @@ async def create_ad_account(
                 "sAMAccountName": login,
                 "userPrincipalName": f"{login}@{config.ad.domain}",
                 "title": position,
-                "userAccountControl": 514
+                "userAccountControl": 514,
             }
         )
 
         if ad_conn.result["description"] != "success":
             raise Exception(ad_conn.result)
 
-        # 2️⃣ Пароль (LDAPS ✔)
+        # 2️⃣ Пароль (LDAPS)
         ad_conn.extend.microsoft.modify_password(user_dn, password)
+
         if ad_conn.result["description"] != "success":
             raise Exception(ad_conn.result)
 
@@ -96,10 +84,9 @@ async def create_ad_account(
         # 4️⃣ Группы
         groups = await resolve_groups(position)
         for group_dn in groups:
-            ad_conn.modify(
-                group_dn,
-                {"member": [(MODIFY_ADD, [user_dn])]}
-            )
+            ad_conn.modify(group_dn, {
+                "member": [(MODIFY_ADD, [user_dn])]
+            })
 
         # 5️⃣ DB
         db_conn = await get_db_connection()
