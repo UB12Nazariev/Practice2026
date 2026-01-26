@@ -59,7 +59,7 @@ class MailConfig(BaseSettings):
 
 class ADConfig(BaseSettings):
     """Конфигурация Active Directory"""
-    server: str = "192.168.76.213"
+    server: str = "10.222.249.43"
     domain: str = "testdomain.local"
     admin_user: str = "admin"
     admin_password: str = "SecurePass123"
@@ -101,7 +101,6 @@ class Config(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore"  # Игнорировать лишние поля в .env
     )
-
 
 def load_config() -> Config:
     """Загрузить конфигурацию"""
